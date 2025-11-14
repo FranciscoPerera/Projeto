@@ -1,11 +1,603 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="img/logo.png" type="image/png" />
+    <title>Gerador de QR Code PIX para CNPJ</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1e5799 0%, #207cca 51%, #2989d8 100%);
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 800px;
+            padding: 30px;
+            margin-top: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #1e5799;
+            margin-bottom: 10px;
+            font-size: 2.2rem;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .form-section, .result-section {
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            color: #1e5799;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #444;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: #1e5799;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(30, 87, 153, 0.2);
+        }
+
+        .btn {
+            background: linear-gradient(to right, #1e5799, #2989d8);
+            color: white;
+            border: none;
+            padding: 14px 25px;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-block {
+            display: block;
+            width: 100%;
+        }
+
+        .result-section {
+            display: none;
+        }
+
+        .qr-container {
+            text-align: center;
+            margin: 25px 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+        }
+
+        #qrcode {
+            display: inline-block;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .pix-info {
+            background-color: #f0f8ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .pix-info h3 {
+            color: #1e5799;
+            margin-bottom: 10px;
+        }
+
+        .pix-info p {
+            margin-bottom: 8px;
+            word-break: break-all;
+        }
+
+        .copy-btn {
+            background-color: #28a745;
+            margin-top: 10px;
+        }
+
+        .error {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .success {
+            color: #28a745;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .instructions {
+            background-color: #fff9e6;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border-left: 4px solid #ffc107;
+        }
+
+        .instructions h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .instructions ol {
+            margin-left: 20px;
+        }
+
+        .instructions li {
+            margin-bottom: 8px;
+        }
+
+        footer {
+            margin-top: 30px;
+            text-align: center;
+            color: white;
+            font-size: 14px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
 </head>
 <body>
-  
+    <div class="container">
+        <header>
+            <h1>Gerador de QR Code PIX</h1>
+            <p class="subtitle">Crie QR Codes PIX para pagamentos via CNPJ</p>
+        </header>
+
+        <section class="form-section">
+            <h2>Informações do PIX</h2>
+            <form id="pixForm">
+                <div class="form-group">
+                    <label for="cnpj">CNPJ</label>
+                    <input type="text" id="cnpj" placeholder="00.000.000/0000-00" maxlength="18">
+                    <div class="error" id="cnpjError">CNPJ inválido. Por favor, verifique o número.</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="nome">Nome da Empresa</label>
+                    <input type="text" id="nome" placeholder="Nome da empresa">
+                    <div class="error" id="nomeError">Por favor, informe o nome da empresa.</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="cidade">Cidade</label>
+                    <input type="text" id="cidade" placeholder="Cidade">
+                    <div class="error" id="cidadeError">Por favor, informe a cidade.</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="valor">Valor (opcional)</label>
+                    <input type="text" id="valor" placeholder="0.00">
+                    <div class="error" id="valorError">Por favor, informe um valor válido.</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="descricao">Descrição (opcional)</label>
+                    <textarea id="descricao" rows="3" placeholder="Descrição do pagamento"></textarea>
+                </div>
+
+                <button type="button" id="gerarBtn" class="btn btn-block">Gerar QR Code PIX</button>
+            </form>
+        </section>
+
+        <section class="result-section" id="resultSection">
+            <h2>QR Code PIX Gerado</h2>
+            
+            <div class="qr-container">
+                <div id="qrcode"></div>
+            </div>
+
+            <div class="pix-info">
+                <h3>Informações do PIX</h3>
+                <p><strong>Chave PIX:</strong> <span id="pixCnpj"></span></p>
+                <p><strong>Nome:</strong> <span id="pixNome"></span></p>
+                <p><strong>Cidade:</strong> <span id="pixCidade"></span></p>
+                <p><strong>Valor:</strong> R$ <span id="pixValor"></span></p>
+                <p><strong>Descrição:</strong> <span id="pixDescricao"></span></p>
+                <button id="copyBtn" class="btn copy-btn">Copiar Código PIX</button>
+                <div class="success" id="copySuccess">Código PIX copiado com sucesso!</div>
+            </div>
+
+            <div class="instructions">
+                <h3>Como usar o QR Code PIX</h3>
+                <ol>
+                    <li>Abra o aplicativo do seu banco</li>
+                    <li>Selecione a opção "Pagar com PIX"</li>
+                    <li>Escaneie o QR Code acima</li>
+                    <li>Confirme as informações e finalize o pagamento</li>
+                </ol>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <p>Gerador de QR Code PIX para CNPJ &copy; 2023</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elementos do DOM
+            const cnpjInput = document.getElementById('cnpj');
+            const nomeInput = document.getElementById('nome');
+            const cidadeInput = document.getElementById('cidade');
+            const valorInput = document.getElementById('valor');
+            const descricaoInput = document.getElementById('descricao');
+            const gerarBtn = document.getElementById('gerarBtn');
+            const resultSection = document.getElementById('resultSection');
+            const qrcodeDiv = document.getElementById('qrcode');
+            const pixCnpj = document.getElementById('pixCnpj');
+            const pixNome = document.getElementById('pixNome');
+            const pixCidade = document.getElementById('pixCidade');
+            const pixValor = document.getElementById('pixValor');
+            const pixDescricao = document.getElementById('pixDescricao');
+            const copyBtn = document.getElementById('copyBtn');
+            const copySuccess = document.getElementById('copySuccess');
+            
+            // Formatação do CNPJ
+            cnpjInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                
+                if (value.length <= 14) {
+                    if (value.length > 12) {
+                        value = value.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{0,2})/, '$1.$2.$3/$4-$5');
+                    } else if (value.length > 8) {
+                        value = value.replace(/^(\d{2})(\d{3})(\d{3})(\d{0,4})/, '$1.$2.$3/$4');
+                    } else if (value.length > 5) {
+                        value = value.replace(/^(\d{2})(\d{3})(\d{0,3})/, '$1.$2.$3');
+                    } else if (value.length > 2) {
+                        value = value.replace(/^(\d{2})(\d{0,3})/, '$1.$2');
+                    }
+                    
+                    e.target.value = value;
+                }
+            });
+
+            // Formatação do valor
+            valorInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                
+                if (value.length === 0) {
+                    e.target.value = '';
+                    return;
+                }
+                
+                // Converte para centavos
+                const cents = parseInt(value);
+                const formattedValue = (cents / 100).toFixed(2);
+                e.target.value = formattedValue;
+            });
+
+            // Validação do formulário
+            gerarBtn.addEventListener('click', function() {
+                let isValid = true;
+                
+                // Valida CNPJ
+                const cnpj = cnpjInput.value.replace(/\D/g, '');
+                if (!validarCNPJ(cnpj)) {
+                    document.getElementById('cnpjError').style.display = 'block';
+                    isValid = false;
+                } else {
+                    document.getElementById('cnpjError').style.display = 'none';
+                }
+                
+                // Valida nome
+                if (nomeInput.value.trim() === '') {
+                    document.getElementById('nomeError').style.display = 'block';
+                    isValid = false;
+                } else {
+                    document.getElementById('nomeError').style.display = 'none';
+                }
+                
+                // Valida cidade
+                if (cidadeInput.value.trim() === '') {
+                    document.getElementById('cidadeError').style.display = 'block';
+                    isValid = false;
+                } else {
+                    document.getElementById('cidadeError').style.display = 'none';
+                }
+                
+                // Valida valor (se preenchido)
+                if (valorInput.value.trim() !== '') {
+                    const valor = parseFloat(valorInput.value.replace(',', '.'));
+                    if (isNaN(valor) || valor <= 0) {
+                        document.getElementById('valorError').style.display = 'block';
+                        isValid = false;
+                    } else {
+                        document.getElementById('valorError').style.display = 'none';
+                    }
+                }
+                
+                if (isValid) {
+                    gerarQRCode();
+                }
+            });
+
+            // Função para validar CNPJ
+            function validarCNPJ(cnpj) {
+                cnpj = cnpj.replace(/[^\d]+/g, '');
+                
+                if (cnpj === '') return false;
+                if (cnpj.length !== 14) return false;
+                
+                // Elimina CNPJs inválidos conhecidos
+                if (cnpj === "00000000000000" || 
+                    cnpj === "11111111111111" || 
+                    cnpj === "22222222222222" || 
+                    cnpj === "33333333333333" || 
+                    cnpj === "44444444444444" || 
+                    cnpj === "55555555555555" || 
+                    cnpj === "66666666666666" || 
+                    cnpj === "77777777777777" || 
+                    cnpj === "88888888888888" || 
+                    cnpj === "99999999999999")
+                    return false;
+                    
+                // Valida DVs
+                let tamanho = cnpj.length - 2;
+                let numeros = cnpj.substring(0, tamanho);
+                let digitos = cnpj.substring(tamanho);
+                let soma = 0;
+                let pos = tamanho - 7;
+                
+                for (let i = tamanho; i >= 1; i--) {
+                    soma += numeros.charAt(tamanho - i) * pos--;
+                    if (pos < 2) pos = 9;
+                }
+                
+                let resultado = soma % 11 < 2 ? 0 : 11 - soma % 11;
+                if (resultado != digitos.charAt(0)) return false;
+                
+                tamanho = tamanho + 1;
+                numeros = cnpj.substring(0, tamanho);
+                soma = 0;
+                pos = tamanho - 7;
+                
+                for (let i = tamanho; i >= 1; i--) {
+                    soma += numeros.charAt(tamanho - i) * pos--;
+                    if (pos < 2) pos = 9;
+                }
+                
+                resultado = soma % 11 < 2 ? 0 : 11 - soma % 11;
+                if (resultado != digitos.charAt(1)) return false;
+                
+                return true;
+            }
+
+            // Função para gerar QR Code
+            function gerarQRCode() {
+                // Limpa QR Code anterior
+                qrcodeDiv.innerHTML = '';
+                
+                // Coleta dados do formulário
+                const cnpj = cnpjInput.value.replace(/\D/g, '');
+                const nome = nomeInput.value.trim();
+                const cidade = cidadeInput.value.trim();
+                const valor = valorInput.value.trim() !== '' ? parseFloat(valorInput.value.replace(',', '.')).toFixed(2) : '';
+                const descricao = descricaoInput.value.trim();
+                
+                // Atualiza informações exibidas
+                pixCnpj.textContent = cnpjInput.value;
+                pixNome.textContent = nome;
+                pixCidade.textContent = cidade;
+                pixValor.textContent = valor !== '' ? valor : '0.00';
+                pixDescricao.textContent = descricao !== '' ? descricao : 'Nenhuma descrição fornecida';
+                
+                // Gera payload PIX (formato EMV)
+                const payload = gerarPayloadPIX(cnpj, nome, cidade, valor, descricao);
+                
+                // Gera QR Code
+                QRCode.toCanvas(qrcodeDiv, payload, {
+                    width: 256,
+                    margin: 2,
+                    color: {
+                        dark: '#000000',
+                        light: '#FFFFFF'
+                    }
+                }, function(error) {
+                    if (error) {
+                        console.error(error);
+                        alert('Erro ao gerar QR Code. Tente novamente.');
+                    } else {
+                        // Exibe a seção de resultados
+                        resultSection.style.display = 'block';
+                        
+                        // Rola a página para a seção de resultados
+                        resultSection.scrollIntoView({ behavior: 'smooth' });
+                    }
+                });
+            }
+
+            // Função para gerar payload PIX no formato EMV
+            function gerarPayloadPIX(cnpj, nome, cidade, valor, descricao) {
+                // ID do payload (formato "BR.GOV.BCB.PIX")
+                let payload = '000201';
+                
+                // Merchant Account Information (PIX)
+                let merchantInfo = '0014BR.GOV.BCB.PIX';
+                merchantInfo += '01' + (cnpj.length.toString().padStart(2, '0')) + cnpj;
+                
+                payload += '26' + (merchantInfo.length.toString().padStart(2, '0')) + merchantInfo;
+                
+                // Merchant Category Code (0000 = não especificado)
+                payload += '52040000';
+                
+                // Transaction Currency (986 = Real Brasileiro)
+                payload += '5303986';
+                
+                // Transaction Amount (opcional)
+                if (valor !== '') {
+                    payload += '54' + (valor.length.toString().padStart(2, '0')) + valor;
+                }
+                
+                // Country Code (BR)
+                payload += '5802BR';
+                
+                // Merchant Name
+                payload += '59' + (nome.length.toString().padStart(2, '0')) + nome;
+                
+                // Merchant City
+                payload += '60' + (cidade.length.toString().padStart(2, '0')) + cidade;
+                
+                // Additional Data Field (descrição)
+                if (descricao !== '') {
+                    payload += '62' + (('05' + (descricao.length.toString().padStart(2, '0')) + descricao).length.toString().padStart(2, '0')) + 
+                               '05' + (descricao.length.toString().padStart(2, '0')) + descricao;
+                }
+                
+                // CRC16
+                payload += '6304';
+                
+                // Calcula CRC16
+                const crc = calcularCRC16(payload);
+                payload += crc;
+                
+                return payload;
+            }
+
+            // Função para calcular CRC16
+            function calcularCRC16(payload) {
+                let crc = 0xFFFF;
+                
+                for (let i = 0; i < payload.length; i++) {
+                    crc ^= payload.charCodeAt(i) << 8;
+                    
+                    for (let j = 0; j < 8; j++) {
+                        if (crc & 0x8000) {
+                            crc = (crc << 1) ^ 0x1021;
+                        } else {
+                            crc = crc << 1;
+                        }
+                    }
+                }
+                
+                crc = crc & 0xFFFF;
+                return crc.toString(16).toUpperCase().padStart(4, '0');
+            }
+
+            // Função para copiar código PIX
+            copyBtn.addEventListener('click', function() {
+                const cnpj = cnpjInput.value.replace(/\D/g, '');
+                const nome = nomeInput.value.trim();
+                const cidade = cidadeInput.value.trim();
+                const valor = valorInput.value.trim() !== '' ? parseFloat(valorInput.value.replace(',', '.')).toFixed(2) : '';
+                const descricao = descricaoInput.value.trim();
+                
+                const payload = gerarPayloadPIX(cnpj, nome, cidade, valor, descricao);
+                
+                // Tenta usar a API de clipboard
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(payload)
+                        .then(() => {
+                            copySuccess.style.display = 'block';
+                            setTimeout(() => {
+                                copySuccess.style.display = 'none';
+                            }, 3000);
+                        })
+                        .catch(err => {
+                            console.error('Erro ao copiar: ', err);
+                            fallbackCopyTextToClipboard(payload);
+                        });
+                } else {
+                    fallbackCopyTextToClipboard(payload);
+                }
+            });
+
+            // Fallback para copiar texto (para navegadores mais antigos)
+            function fallbackCopyTextToClipboard(text) {
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                
+                try {
+                    const successful = document.execCommand('copy');
+                    if (successful) {
+                        copySuccess.style.display = 'block';
+                        setTimeout(() => {
+                            copySuccess.style.display = 'none';
+                        }, 3000);
+                    }
+                } catch (err) {
+                    console.error('Fallback: Oops, unable to copy', err);
+                }
+                
+                document.body.removeChild(textArea);
+            }
+        });
+    </script>
 </body>
 </html>
