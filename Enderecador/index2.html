@@ -1,0 +1,1315 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="icon" href="img/logo.png" type="image/png" />
+    <title>Endereçador</title>
+    <style>
+      /* Estilos*/
+      :root {
+        --bg: #f4f6f8;
+        --card: #ffffff;
+        --primary: #0046ab;
+        --primary-hover: #003588;
+        --muted: #6b7280;
+        --error: #dc2626;
+        --success: #059669;
+        --label-bg: #0046ab;
+        --gap: 12px;
+        font-family: Arial, sans-serif;
+      }
+
+      body {
+        margin: 0;
+        background: linear-gradient(180deg, #eef2ff 0%, var(--bg) 100%);
+        color: #111827;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        padding: 24px;
+        box-sizing: border-box;
+        min-height: 100vh;
+      }
+
+      .container {
+        max-width: 1100px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1fr 380px;
+        gap: 24px;
+        align-items: start;
+        
+      }
+
+      header {
+        grid-column: 1 / -1;
+        margin-bottom: 4px;
+      }
+
+      header h1 {
+        margin: 0 0 8px 0;
+        font-size: 20px;
+        text-align: center;
+      }
+
+      header p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 14px;
+        text-align: center;
+      }
+
+      .form-card {
+        background: var(--card);
+        padding: 18px;
+        border-radius: 10px;
+        box-shadow: 0 6px 18px rgba(16, 24, 40, 0.06);
+      }
+
+      .section-title {
+        font-weight: 600;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--gap);
+      }
+
+      .form-group {
+        margin-bottom: 12px;
+      }
+
+      label {
+        display: block;
+        font-size: 13px;
+        color: var(--muted);
+        margin-bottom: 6px;
+      }
+
+      input[type="text"], input[type="tel"], input[type="email"], select {
+        width: 100%;
+        padding: 8px 10px;
+        border-radius: 8px;
+        border: 1px solid #e6e9ef;
+        font-size: 14px;
+        box-sizing: border-box;
+        transition: border-color 0.2s;
+      }
+
+      input:focus, select:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 2px rgba(0, 70, 171, 0.1);
+      }
+
+      input.error {
+        border-color: var(--error);
+      }
+
+      .error-message {
+        color: var(--error);
+        font-size: 12px;
+        margin-top: 4px;
+        display: none;
+      }
+
+      .full {
+        grid-column: 1 / -1;
+      }
+
+      .actions {
+        margin-top: 12px;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      button {
+        padding: 10px 14px;
+        border-radius: 8px;
+        border: 0;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.2s;
+      }
+
+      .btn-primary {
+        background: var(--primary);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background: var(--primary-hover);
+      }
+
+      .btn-ghost {
+        background: transparent;
+        border: 1px solid #e6e9ef;
+        color: var(--muted);
+      }
+
+      .btn-ghost:hover {
+        background: #f8fafc;
+      }
+
+      button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      /* Estilo da etiqueta compacta */
+      .preview-wrap {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .label {
+        width: 100%;
+        min-height: 280px;
+        background: white;
+        border-radius: 0;
+        padding: 0;
+        box-shadow: 0 6px 18px rgba(16, 24, 40, 0.06);
+        box-sizing: border-box;
+        border: 1px solid #000000;
+        position: relative;
+        overflow: hidden;
+        font-family: Arial, sans-serif;
+        font-size: 12px;
+      }
+
+      .label-content {
+        padding: 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      @media print {
+        .label {
+          min-height: auto;
+          box-shadow: none;
+          border: none;
+        }
+        .label-content {
+          padding: 6px;
+          gap: 4px;
+        }
+      }
+
+      .address-section {
+        border: 1px solid #000000;
+        border-radius: 2px;
+        padding: 6px;
+      }
+
+      .address-section h3 {
+        margin: 0 0 4px 0;
+        font-size: 10px;
+        font-weight: bold;
+        color: #666;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+      }
+
+      .address-content {
+        font-size: 11px;
+        line-height: 1.25;
+      }
+
+      .address-name {
+        font-weight: bold;
+        font-size: 12px;
+        margin-bottom: 1px;
+      }
+
+      .address-line {
+        margin-bottom: 0.5px;
+        word-break: break-word;
+      }
+
+      .address-obs {
+        margin-top: 2px;
+        font-style: italic;
+        color: #666;
+        font-size: 10px;
+      }
+
+      .signature-area {
+        border: 1px dashed #bfbfbf;
+        margin: 4px 0 4px 0;
+        padding: 8px;
+        text-align: left;
+        min-height: 5cm;
+        background: #fafafa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .signature-placeholder {
+        color: #999;
+        font-style: italic;
+        text-align: center;
+        width: 100%;
+        font-size: 10px;
+      }
+
+      .label-footer {
+        padding: 4px 6px 0 0;
+        font-size: 9px;
+        color: #ccc;
+        text-align: right;
+      }
+
+      footer.note {
+        grid-column: 1 / -1;
+        margin-top: 18px;
+        color: var(--muted);
+        font-size: 13px;
+        text-align: center;
+      }
+
+      .loading {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: #fff;
+        animation: spin 1s ease-in-out infinite;
+        margin-right: 8px;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 12px 16px;
+        border-radius: 8px;
+        background: var(--card);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transform: translateX(150%);
+        transition: transform 0.3s ease;
+        z-index: 1000;
+      }
+
+      .notification.show {
+        transform: translateX(0);
+      }
+
+      .notification.success {
+        border-left: 4px solid var(--success);
+      }
+
+      .notification.error {
+        border-left: 4px solid var(--error);
+      }
+
+      /* Grid para Assinatura e Documento lado a lado */
+      .signature-document-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+
+      .signature-line,
+      .document-line {
+        flex: 1;
+      }
+
+      .signature-line div,
+      .document-line div {
+        margin-top: 5px;
+        height: 20px;
+      }
+
+      .signature-line div:last-child,
+      .document-line div:last-child {
+        font-size: 9px;
+        margin-top: 2px;
+      }
+
+      /* Novos estilos para a API de CEP */
+      .cep-loading {
+        position: relative;
+      }
+
+      .cep-loading::after {
+        content: "";
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(0, 70, 171, 0.3);
+        border-radius: 50%;
+        border-top-color: var(--primary);
+        animation: spin 1s ease-in-out infinite;
+      }
+
+      .cep-success {
+        border-color: var(--success) !important;
+      }
+
+      .cep-error {
+        border-color: var(--error) !important;
+      }
+
+      .history-dropdown {
+        position: absolute;
+        background: white;
+        border: 1px solid #e6e9ef;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        max-height: 200px;
+        overflow-y: auto;
+        z-index: 10;
+        margin-top: 2px;
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      .history-item {
+        padding: 8px 12px;
+        cursor: pointer;
+        border-bottom: 1px solid #f1f1f1;
+        font-size: 14px;
+      }
+
+      .history-item:hover {
+        background-color: #f8fafc;
+      }
+
+      .history-item:last-child {
+        border-bottom: none;
+      }
+
+      .cep-group {
+        position: relative;
+      }
+
+      /* Estilos para o código de barras */
+      .barcode-container {
+        display: flex;
+        justify-content: center;
+        margin: 4px 0;
+      }
+
+      .barcode {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 4px 8px;
+        border: 1px solid #ddd;
+        background: white;
+      }
+
+      .barcode-bars {
+        display: flex;
+        align-items: center;
+        height: 40px;
+        margin-bottom: 2px;
+      }
+
+      .barcode-bar {
+        background-color: black;
+        height: 100%;
+        margin-right: 1px;
+      }
+
+      .barcode-text {
+        font-family: 'Courier New', monospace;
+        font-size: 10px;
+        letter-spacing: 1px;
+      }
+
+      /* Novo layout para destinatário e código de barras lado a lado */
+      .recipient-barcode-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 8px;
+      }
+
+      .recipient-section {
+        border: 1px solid #000000;
+        border-radius: 2px;
+        padding: 6px;
+      }
+
+      .barcode-section {
+        border: 1px solid #000000;
+        border-radius: 2px;
+        padding: 6px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .barcode-section h3 {
+        margin: 0 0 4px 0;
+        font-size: 10px;
+        font-weight: bold;
+        color: #666;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        text-align: center;
+      }
+
+      /* responsividade */
+      @media (max-width: 980px) {
+        .container {
+          grid-template-columns: 1fr;
+          padding: 0 8px;
+        }
+        
+        .recipient-barcode-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+
+        .actions {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .actions button {
+          width: 100%;
+        }
+        
+        .recipient-barcode-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1> Endereçador - Busca CEP</h1>
+        <p>
+          Preencha os dados do remetente e do destinatário. Clique em
+          <strong>Gerar PDF</strong> e a etiqueta será gerada para impressão e aberta em uma nova aba.
+        </p>
+      </header>
+
+      <!-- Formulários -->
+      <div class="form-card">
+        <div class="section-title">Remetente</div>
+        <div class="grid">
+          <div class="form-group">
+            <label for="s-name">Nome / Empresa</label>
+            <input id="s-name" type="text" placeholder="Ex.: Luis Fernando" required />
+            <div class="error-message" id="s-name-error">Nome é obrigatório</div>
+          </div>
+
+          <div class="form-group">
+            <label for="s-phone">Telefone</label>
+            <input id="s-phone" type="tel" placeholder="(19) 99222-1111" />
+            <div class="error-message" id="s-phone-error">Telefone inválido</div>
+          </div>
+
+          <div class="form-group full">
+            <label for="s-street">Endereço (Rua, Av, Praça)</label>
+            <input id="s-street" type="text" placeholder="Rua Carmelindo Luis de Souza" required />
+            <div class="error-message" id="s-street-error">Endereço é obrigatório</div>
+          </div>
+
+          <div class="form-group">
+            <label for="s-number">Número</label>
+            <input id="s-number" type="text" placeholder="114" required />
+            <div class="error-message" id="s-number-error">Número é obrigatório</div>
+          </div>
+
+          <div class="form-group">
+            <label for="s-comp">Complemento</label>
+            <input id="s-comp" type="text" placeholder="Apto 45" />
+          </div>
+
+          <div class="form-group">
+            <label for="s-neigh">Bairro</label>
+            <input id="s-neigh" type="text" placeholder="Jardim dos Poetas" required />
+            <div class="error-message" id="s-neigh-error">Bairro é obrigatório</div>
+          </div>
+
+          <div class="form-group">
+            <label for="s-city">Cidade</label>
+            <input id="s-city" type="text" placeholder="Capivari" required />
+            <div class="error-message" id="s-city-error">Cidade é obrigatória</div>
+          </div>
+
+          <div class="form-group">
+            <label for="s-state">UF</label>
+            <input id="s-state" type="text" placeholder="SP" maxlength="2" required />
+            <div class="error-message" id="s-state-error">UF é obrigatória (2 letras)</div>
+          </div>
+
+          <div class="form-group cep-group">
+            <label for="s-cep">CEP</label>
+            <input id="s-cep" type="text" placeholder="13360-414" required />
+            <div class="error-message" id="s-cep-error">CEP inválido</div>
+            <!-- Dropdown de histórico será inserido aqui via JS -->
+          </div>
+        </div>
+
+        <hr style="margin:14px 0;border:none;border-top:1px dashed #eef2ff;" />
+
+        <div class="section-title">Destinatário</div>
+        <div class="grid">
+          <div class="form-group">
+            <label for="d-name">Nome / Empresa</label>
+            <input id="d-name" type="text" placeholder="Ex.: Jose Bortoli" required />
+            <div class="error-message" id="d-name-error">Nome é obrigatório</div>
+          </div>
+
+          <div class="form-group">
+            <label for="d-phone">Telefone</label>
+            <input id="d-phone" type="tel" placeholder="(19) 99222-1111" />
+            <div class="error-message" id="d-phone-error">Telefone inválido</div>
+          </div>
+
+          <div class="form-group full">
+            <label for="d-street">Endereço (Rua, Av, Praça)</label>
+            <input id="d-street" type="text" placeholder="Rua Teodureto Souto" required />
+            <div class="error-message" id="d-street-error">Endereço é obrigatório</div>
+          </div>
+
+          <div class="form-group">
+            <label for="d-number">Número</label>
+            <input id="d-number" type="text" placeholder="208" required />
+            <div class="error-message" id="d-number-error">Número é obrigatório</div>
+          </div>
+
+          <div class="form-group">
+            <label for="d-comp">Complemento</label>
+            <input id="d-comp" type="text" placeholder="Casa" />
+          </div>
+
+          <div class="form-group">
+            <label for="d-neigh">Bairro</label>
+            <input id="d-neigh" type="text" placeholder="Cambuci" required />
+            <div class="error-message" id="d-neigh-error">Bairro é obrigatório</div>
+          </div>
+
+          <div class="form-group">
+            <label for="d-city">Cidade</label>
+            <input id="d-city" type="text" placeholder="São Paulo" required />
+            <div class="error-message" id="d-city-error">Cidade é obrigatória</div>
+          </div>
+
+          <div class="form-group">
+            <label for="d-state">UF</label>
+            <input id="d-state" type="text" placeholder="SP" maxlength="2" required />
+            <div class="error-message" id="d-state-error">UF é obrigatória (2 letras)</div>
+          </div>
+
+          <div class="form-group cep-group">
+            <label for="d-cep">CEP</label>
+            <input id="d-cep" type="text" placeholder="01539-000" required />
+            <div class="error-message" id="d-cep-error">CEP inválido</div>
+            <!-- Dropdown de histórico será inserido aqui via JS -->
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="full actions">
+            <button id="clearForm" class="btn-ghost">Limpar Formulário</button>
+            <button id="generatePdf" class="btn-primary">Gerar PDF</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Preview -->
+      <div class="preview-wrap">
+        <div class="section-title">Pré-visualização da Etiqueta</div>
+        <div id="labelPreview" class="label">
+          <div class="label-content">
+            <!-- Seção da Etiqueta -->
+            <div class="address-section">
+              <div class="address-content">
+                <div class="signature-area">
+                  <div class="signature-placeholder">Espaço para etiqueta</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Seção de Recebedor (assinatura) - simplificada -->
+            <div class="address-section">
+              <div class="address-content signature-document-grid">
+                <div class="signature-line">
+                  <div style="border-bottom: 1px solid #333; height: 30px;"></div>
+                  <div style="text-align: center; margin-top: 3px; font-size: 11px; color: #666;">Assinatura</div>
+                </div>
+                <div class="document-line">
+                  <div style="border-bottom: 1px solid #333; height: 30px;"></div>
+                  <div style="text-align: center; margin-top: 3px; font-size: 11px; color: #666;">Documento</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Destinatário e código de barras lado a lado -->
+            <div class="recipient-barcode-grid">
+              <div class="recipient-section">
+                <h3>Destinatário</h3>
+                <div class="address-content">
+                  <div class="address-name" id="preview-d-name">—</div>
+                  <div class="address-line" id="preview-d-address">—</div>
+                  <div class="address-line" id="preview-d-neigh">—</div>
+                  <div class="address-line" id="preview-d-city">—</div>
+                </div>
+              </div>
+              
+              <div class="barcode-section">
+                <h3>Código de Barras</h3>
+                <div class="barcode" id="barcode-container">
+                  <div class="barcode-bars" id="barcode-bars"></div>
+                  <div class="barcode-text" id="barcode-text">CEP: —</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="address-section">
+              <h3>Remetente</h3>
+              <div class="address-content">
+                <div class="address-name" id="preview-s-name">—</div>
+                <div class="address-line" id="preview-s-address">—</div>
+                <div class="address-line" id="preview-s-neigh">—</div>
+                <div class="address-line" id="preview-s-city">—</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer class="note">&copy; 2025 Endereçador. Todos os direitos reservados.</footer>
+    </div>
+
+    <!-- Notificações -->
+    <div id="notification" class="notification">
+      <span id="notification-message"></span>
+    </div>
+
+    <!-- Bibliotecas: html2canvas + jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <script>
+      // Configurações da API de CEP
+      const CONFIG = {
+        STORAGE_KEY: 'cep_history_v2',
+        MAX_HISTORY_ITEMS: 50,
+        API_ENDPOINTS: {
+          viacep: cep => `https://viacep.com.br/ws/${cep}/json/`,
+          correios: cep => `https://proxy.example.com/correios/${cep}`
+        }
+      };
+
+      // Helper para buscar elementos
+      const $ = (id) => document.getElementById(id);
+
+      // Módulo de validação
+      const Validator = {
+        required: (value) => value && value.trim().length > 0,
+        phone: (value) => !value || /\(?\d{2}\)?\s?\d{4,5}-?\d{4}$/.test(value),
+        cep: (value) => /^\d{5}-?\d{3}$/.test(value),
+        uf: (value) => /^[A-Z]{2}$/.test(value),
+      };
+
+      // Módulo de máscaras
+      const Mask = {
+        cep: (value) => {
+          const cleaned = value.replace(/\D/g, "");
+          if (cleaned.length <= 5) return cleaned;
+          return cleaned.substring(0, 5) + "-" + cleaned.substring(5, 8);
+        },
+        phone: (value) => {
+          const cleaned = value.replace(/\D/g, "");
+          if (cleaned.length <= 2) return `(${cleaned}`;
+          if (cleaned.length <= 6) return `(${cleaned.substring(0, 2)}) ${cleaned.substring(2)}`;
+          if (cleaned.length <= 10) return `(${cleaned.substring(0, 2)}) ${cleaned.substring(2, 6)}-${cleaned.substring(6)}`;
+          return `(${cleaned.substring(0, 2)}) ${cleaned.substring(2, 7)}-${cleaned.substring(7, 11)}`;
+        },
+      };
+
+      // Módulo de notificações
+      const Notification = {
+        show: (message, type = "success") => {
+          const notification = $("notification");
+          const messageEl = $("notification-message");
+
+          messageEl.textContent = message;
+          notification.className = `notification ${type}`;
+          notification.classList.add("show");
+
+          setTimeout(() => {
+            notification.classList.remove("show");
+          }, 3000);
+        },
+      };
+
+      // Módulo de histórico de CEP
+      const CepHistory = {
+        get: () => {
+          try {
+            const history = localStorage.getItem(CONFIG.STORAGE_KEY);
+            return history ? JSON.parse(history) : [];
+          } catch (error) {
+            console.error('Erro ao recuperar histórico de CEP:', error);
+            return [];
+          }
+        },
+
+        add: (cepData) => {
+          try {
+            let history = CepHistory.get();
+            
+            // Remove se já existir (para evitar duplicatas)
+            history = history.filter(item => item.cep !== cepData.cep);
+            
+            // Adiciona no início
+            history.unshift(cepData);
+            
+            // Limita o tamanho do histórico
+            if (history.length > CONFIG.MAX_HISTORY_ITEMS) {
+              history = history.slice(0, CONFIG.MAX_HISTORY_ITEMS);
+            }
+            
+            localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(history));
+          } catch (error) {
+            console.error('Erro ao salvar histórico de CEP:', error);
+          }
+        },
+
+        remove: (cep) => {
+          try {
+            let history = CepHistory.get();
+            history = history.filter(item => item.cep !== cep);
+            localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(history));
+          } catch (error) {
+            console.error('Erro ao remover CEP do histórico:', error);
+          }
+        }
+      };
+
+      // Módulo de API de CEP
+      const CepAPI = {
+        // Busca CEP usando diferentes provedores
+        fetch: async (cep) => {
+          const cleanCep = cep.replace(/\D/g, '');
+          
+          // Tenta ViaCEP primeiro
+          try {
+            const response = await fetch(CONFIG.API_ENDPOINTS.viacep(cleanCep));
+            if (!response.ok) throw new Error('Erro na resposta da API');
+            
+            const data = await response.json();
+            
+            if (data.erro) {
+              throw new Error('CEP não encontrado');
+            }
+            
+            return {
+              cep: data.cep,
+              street: data.logradouro,
+              neighborhood: data.bairro,
+              city: data.localidade,
+              state: data.uf,
+              source: 'viacep'
+            };
+          } catch (error) {
+            console.warn('ViaCEP falhou, tentando próximo provedor:', error);
+            
+            // Aqui você pode adicionar fallback para outros provedores
+            // Por exemplo, tentar a API dos Correios se disponível
+            
+            throw new Error('Não foi possível encontrar o CEP');
+          }
+        },
+
+        // Preenche os campos do formulário com os dados do CEP
+        fillForm: (formPrefix, data) => {
+          $(`${formPrefix}-street`).value = data.street || '';
+          $(`${formPrefix}-neigh`).value = data.neighborhood || '';
+          $(`${formPrefix}-city`).value = data.city || '';
+          $(`${formPrefix}-state`).value = data.state || '';
+        },
+
+        // Busca e preenche o CEP
+        searchAndFill: async (cepField, formPrefix) => {
+          const cep = cepField.value.replace(/\D/g, '');
+          
+          if (cep.length !== 8) {
+            Notification.show('CEP deve ter 8 dígitos', 'error');
+            return;
+          }
+
+          // Adiciona classe de loading
+          cepField.classList.add('cep-loading');
+          
+          try {
+            const data = await CepAPI.fetch(cep);
+            
+            // Preenche o formulário
+            CepAPI.fillForm(formPrefix, data);
+            
+            // Adiciona ao histórico
+            CepHistory.add(data);
+            
+            // Feedback visual de sucesso
+            cepField.classList.remove('cep-loading');
+            cepField.classList.add('cep-success');
+            setTimeout(() => cepField.classList.remove('cep-success'), 2000);
+            
+            Notification.show('Endereço preenchido!');
+            
+            // Atualiza a pré-visualização
+            updatePreview();
+            
+          } catch (error) {
+            console.error('Erro ao buscar CEP:', error);
+            
+            // Feedback visual de erro
+            cepField.classList.remove('cep-loading');
+            cepField.classList.add('cep-error');
+            setTimeout(() => cepField.classList.remove('cep-error'), 2000);
+            
+            Notification.show(error.message || 'Erro ao buscar CEP', 'error');
+          }
+        },
+
+        // Mostra histórico de CEPs
+        showHistory: (cepField, formPrefix) => {
+          const history = CepHistory.get();
+          if (history.length === 0) return;
+          
+          // Remove dropdown existente
+          const existingDropdown = cepField.parentNode.querySelector('.history-dropdown');
+          if (existingDropdown) {
+            existingDropdown.remove();
+          }
+          
+          // Cria dropdown
+          const dropdown = document.createElement('div');
+          dropdown.className = 'history-dropdown';
+          
+          history.forEach(item => {
+            const historyItem = document.createElement('div');
+            historyItem.className = 'history-item';
+            historyItem.innerHTML = `
+              <div><strong>${item.cep}</strong></div>
+              <div style="font-size: 12px; color: #666;">
+                ${item.street}, ${item.neighborhood}, ${item.city}-${item.state}
+              </div>
+            `;
+            
+            historyItem.addEventListener('click', () => {
+              cepField.value = item.cep;
+              CepAPI.fillForm(formPrefix, item);
+              dropdown.remove();
+              updatePreview();
+            });
+            
+            dropdown.appendChild(historyItem);
+          });
+          
+          // Adiciona opção para limpar histórico
+          const clearItem = document.createElement('div');
+          clearItem.className = 'history-item';
+          clearItem.style.color = 'var(--error)';
+          clearItem.textContent = 'Limpar histórico';
+          clearItem.addEventListener('click', () => {
+            localStorage.removeItem(CONFIG.STORAGE_KEY);
+            dropdown.remove();
+            Notification.show('Histórico limpo com sucesso!');
+          });
+          
+          dropdown.appendChild(clearItem);
+          
+          cepField.parentNode.appendChild(dropdown);
+          
+          // Fecha dropdown ao clicar fora
+          setTimeout(() => {
+            const closeDropdown = (e) => {
+              if (!cepField.parentNode.contains(e.target)) {
+                dropdown.remove();
+                document.removeEventListener('click', closeDropdown);
+              }
+            };
+            document.addEventListener('click', closeDropdown);
+          }, 0);
+        }
+      };
+
+      // Módulo de código de barras
+      const Barcode = {
+        // Tabela de codificação CODE 128 (simplificada)
+        CODE128: {
+          START_B: 104,
+          STOP: 106,
+          // Padrão de barras para cada caractere (cada número representa a largura da barra)
+          PATTERNS: {
+            '0': [2,1,2,2,2,2],
+            '1': [2,2,2,1,2,2],
+            '2': [2,2,2,2,2,1],
+            '3': [1,2,1,2,2,3],
+            '4': [1,2,1,3,2,2],
+            '5': [1,3,1,2,2,2],
+            '6': [1,2,2,2,1,3],
+            '7': [1,2,2,3,1,2],
+            '8': [1,3,2,2,1,2],
+            '9': [2,2,1,2,1,3],
+            '-': [2,2,1,3,1,2]
+          }
+        },
+
+        // Gera código de barras para um CEP
+        generate: (cep) => {
+          const cleanCep = cep.replace(/\D/g, '');
+          if (cleanCep.length !== 8) return null;
+          
+          // Formata o CEP para exibição
+          const formattedCep = `${cleanCep.substring(0,5)}-${cleanCep.substring(5,8)}`;
+          
+          // Gera o padrão de barras
+          const pattern = Barcode.generatePattern(cleanCep);
+          
+          return {
+            cep: formattedCep,
+            pattern: pattern
+          };
+        },
+
+        // Gera o padrão de barras para o CEP
+        generatePattern: (cep) => {
+          let pattern = [];
+          
+          // Adiciona padrão de início
+          pattern = pattern.concat(Barcode.CODE128.PATTERNS['START_B']);
+          
+          // Adiciona padrão para cada dígito do CEP
+          for (let i = 0; i < cep.length; i++) {
+            const digit = cep[i];
+            if (Barcode.CODE128.PATTERNS[digit]) {
+              pattern = pattern.concat(Barcode.CODE128.PATTERNS[digit]);
+            }
+          }
+          
+          // Adiciona padrão de parada
+          pattern = pattern.concat(Barcode.CODE128.PATTERNS['STOP']);
+          
+          return pattern;
+        },
+
+        // Renderiza o código de barras no elemento HTML
+        render: (barcodeData, containerId) => {
+          const container = $(containerId);
+          const barsContainer = container.querySelector('.barcode-bars');
+          const textContainer = container.querySelector('.barcode-text');
+          
+          // Limpa o container
+          barsContainer.innerHTML = '';
+          
+          if (!barcodeData) {
+            textContainer.textContent = 'CEP: —';
+            return;
+          }
+          
+          // Renderiza as barras
+          barcodeData.pattern.forEach((width, index) => {
+            const bar = document.createElement('div');
+            bar.className = 'barcode-bar';
+            bar.style.width = `${width}px`;
+            // Barras pares são pretas, ímpares são brancas (espaços)
+            bar.style.backgroundColor = index % 2 === 0 ? 'black' : 'white';
+            barsContainer.appendChild(bar);
+          });
+          
+          // Atualiza o texto
+          textContainer.textContent = `CEP: ${barcodeData.cep}`;
+        }
+      };
+
+      // Função que atualiza a pré-visualização com os valores do formulário
+      function updatePreview() {
+        // Dados do remetente
+        const sName = $("s-name").value.trim();
+        const sStreet = $("s-street").value.trim();
+        const sNumber = $("s-number").value.trim();
+        const sComp = $("s-comp").value.trim();
+        const sNeigh = $("s-neigh").value.trim();
+        const sCity = $("s-city").value.trim();
+        const sState = $("s-state").value.trim().toUpperCase();
+        const sCep = $("s-cep").value.trim();
+
+        // Dados do destinatário
+        const dName = $("d-name").value.trim();
+        const dStreet = $("d-street").value.trim();
+        const dNumber = $("d-number").value.trim();
+        const dComp = $("d-comp").value.trim();
+        const dNeigh = $("d-neigh").value.trim();
+        const dCity = $("d-city").value.trim();
+        const dState = $("d-state").value.trim().toUpperCase();
+        const dCep = $("d-cep").value.trim();
+
+        // Atualizar preview do remetente
+        $("preview-s-name").textContent = sName || "—";
+        $("preview-s-address").textContent = `${sStreet || "—"}, ${sNumber || ""}${sComp ? " " + sComp : ""}`;
+        $("preview-s-neigh").textContent = `${sNeigh || ""}`;
+        $("preview-s-city").textContent = `${sCep || "—"} ${sCity || ""}-${sState || ""}`;
+
+        // Atualizar preview do destinatário
+        $("preview-d-name").textContent = dName || "—";
+        $("preview-d-address").textContent = `${dStreet || "—"}, ${dNumber || ""}${dComp ? " " + dComp : ""}`;
+        $("preview-d-neigh").textContent = `${dNeigh || ""}`;
+        $("preview-d-city").textContent = `${dCep || "—"} ${dCity || ""}-${dState || ""}`;
+
+        // Atualizar código de barras
+        const barcodeData = Barcode.generate(dCep);
+        Barcode.render(barcodeData, 'barcode-container');
+      }
+
+      // Função para validar formulário
+      function validateForm() {
+        let isValid = true;
+
+        // Remetente
+        isValid = validateField("s-name", Validator.required) && isValid;
+        isValid = validateField("s-street", Validator.required) && isValid;
+        isValid = validateField("s-number", Validator.required) && isValid;
+        isValid = validateField("s-neigh", Validator.required) && isValid;
+        isValid = validateField("s-city", Validator.required) && isValid;
+        isValid = validateField("s-state", (value) => Validator.required(value) && Validator.uf(value)) && isValid;
+        isValid = validateField("s-cep", (value) => Validator.required(value) && Validator.cep(value)) && isValid;
+        isValid = validateField("s-phone", Validator.phone) && isValid;
+
+        // Destinatário
+        isValid = validateField("d-name", Validator.required) && isValid;
+        isValid = validateField("d-street", Validator.required) && isValid;
+        isValid = validateField("d-number", Validator.required) && isValid;
+        isValid = validateField("d-neigh", Validator.required) && isValid;
+        isValid = validateField("d-city", Validator.required) && isValid;
+        isValid = validateField("d-state", (value) => Validator.required(value) && Validator.uf(value)) && isValid;
+        isValid = validateField("d-cep", (value) => Validator.required(value) && Validator.cep(value)) && isValid;
+        isValid = validateField("d-phone", Validator.phone) && isValid;
+
+        return isValid;
+      }
+
+      // Função auxiliar para validar um campo
+      function validateField(fieldId, validator) {
+        const field = $(fieldId);
+        const errorElement = $(`${fieldId}-error`);
+        const value = field.value.trim();
+
+        const isValid = validator(value);
+
+        if (!isValid) {
+          field.classList.add("error");
+          errorElement.style.display = "block";
+        } else {
+          field.classList.remove("error");
+          errorElement.style.display = "none";
+        }
+
+        return isValid;
+      }
+
+      // Geração do PDF (usa html2canvas + jsPDF)
+      async function generatePDF() {
+        if (!validateForm()) {
+          Notification.show("Por favor, corrija os erros no formulário antes de gerar o PDF.", "error");
+          return;
+        }
+
+        updatePreview();
+
+        const label = $("labelPreview");
+        // captura com escala maior para melhor qualidade
+        const scale = 2;
+        const canvas = await html2canvas(label, {
+          scale: scale,
+          useCORS: true,
+          logging: false,
+          backgroundColor: null,
+        });
+        const imgData = canvas.toDataURL("image/png");
+
+        // usando jsPDF
+        const { jsPDF } = window.jspdf;
+        // criar A4 vertical (mm)
+        const pdf = new jsPDF({
+          orientation: "portrait",
+          unit: "mm",
+          format: "a4",
+        });
+
+        // Definir tamanho da etiqueta (compacto no canto superior esquerdo)
+        const labelWidth = 100; // mm - reduzido para ser mais compacto
+        const labelHeight = 130; // mm - altura proporcional
+
+        // Posicionar no canto superior esquerdo com pequena margem
+        const marginLeft = 10; // mm
+        const marginTop = 10; // mm
+
+        pdf.addImage(imgData, "PNG", marginLeft, marginTop, labelWidth, labelHeight);
+
+        // nome do arquivo com data
+        const now = new Date();
+        const filename = `etiqueta_correios_${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, "0")}${now.getDate().toString().padStart(2, "0")}.pdf`;
+
+        // Abrir PDF em nova aba em vez de fazer download
+        const pdfBlob = pdf.output("blob");
+        const pdfUrl = URL.createObjectURL(pdfBlob);
+        window.open(pdfUrl, "_blank");
+
+        // Limpar URL após um tempo para liberar memória
+        setTimeout(() => {
+          URL.revokeObjectURL(pdfUrl);
+        }, 1000);
+
+        Notification.show("PDF gerado com sucesso! Abrindo em nova aba...");
+      }
+
+      // Função para limpar o formulário
+      function clearForm() {
+        const inputs = document.querySelectorAll('input[type="text"], input[type="tel"]');
+        inputs.forEach((input) => {
+          input.value = "";
+          input.classList.remove("error");
+          const errorElement = $(`${input.id}-error`);
+          if (errorElement) errorElement.style.display = "none";
+        });
+
+        updatePreview();
+        Notification.show("Formulário limpo com sucesso!");
+      }
+
+      // Aplicar máscaras aos campos
+      function applyMasks() {
+        // CEP
+        $("s-cep").addEventListener("input", (e) => {
+          e.target.value = Mask.cep(e.target.value);
+        });
+
+        $("d-cep").addEventListener("input", (e) => {
+          e.target.value = Mask.cep(e.target.value);
+        });
+
+        // Telefone
+        $("s-phone").addEventListener("input", (e) => {
+          e.target.value = Mask.phone(e.target.value);
+        });
+
+        $("d-phone").addEventListener("input", (e) => {
+          e.target.value = Mask.phone(e.target.value);
+        });
+
+        // UF - converter para maiúsculas
+        $("s-state").addEventListener("input", (e) => {
+          e.target.value = e.target.value.toUpperCase();
+        });
+
+        $("d-state").addEventListener("input", (e) => {
+          e.target.value = e.target.value.toUpperCase();
+        });
+      }
+
+      // Configurar eventos da API de CEP
+      function setupCepAPI() {
+        // Remetente
+        $("s-cep").addEventListener("blur", (e) => {
+          const cep = e.target.value.replace(/\D/g, '');
+          if (cep.length === 8) {
+            CepAPI.searchAndFill(e.target, 's');
+          }
+        });
+
+        $("s-cep").addEventListener("focus", (e) => {
+          CepAPI.showHistory(e.target, 's');
+        });
+
+        // Destinatário
+        $("d-cep").addEventListener("blur", (e) => {
+          const cep = e.target.value.replace(/\D/g, '');
+          if (cep.length === 8) {
+            CepAPI.searchAndFill(e.target, 'd');
+          }
+        });
+
+        $("d-cep").addEventListener("focus", (e) => {
+          CepAPI.showHistory(e.target, 'd');
+        });
+      }
+
+      // Inicialização
+      function init() {
+        // Event listeners
+        // Atualiza automaticamente ao digitar (event delegation simples)
+        const inputs = document.querySelectorAll("input, select");
+        inputs.forEach((i) =>
+          i.addEventListener("input", () => {
+            // atualização leve em tempo real (melhora UX)
+            updatePreview();
+          })
+        );
+
+        $("generatePdf").addEventListener("click", async (e) => {
+          e.preventDefault();
+          // feedback pequeno
+          const btn = e.currentTarget;
+          btn.innerHTML = '<span class="loading"></span>Gerando...';
+          btn.disabled = true;
+          try {
+            await generatePDF();
+          } catch (err) {
+            console.error(err);
+            Notification.show("Erro ao gerar PDF. Verifique o console para mais detalhes.", "error");
+          } finally {
+            btn.innerHTML = "Gerar PDF";
+            btn.disabled = false;
+          }
+        });
+
+        $("clearForm").addEventListener("click", (e) => {
+          e.preventDefault();
+          clearForm();
+        });
+
+        // Aplicar máscaras
+        applyMasks();
+
+        // Configurar API de CEP
+        setupCepAPI();
+
+        // Inicializa preview com conteúdo vazio
+        updatePreview();
+      }
+
+      // Inicializar quando o DOM estiver pronto
+      document.addEventListener("DOMContentLoaded", init);
+    </script>
+  </body>
+</html>
