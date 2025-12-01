@@ -1,244 +1,82 @@
- 🔥 GERÊNCIA DO PROCESSADO - ESCALONAMENTO
-
-📌 Conceitos Fundamentais
-O escalonamento de processos é o mecanismo pelo qual o SO decide qual processo em estado de pronto deve utilizar a CPU. Em sistemas multiprogramáveis, vários processos competem pela CPU, exigindo políticas de escalonamento que otimizem métricas como throughput, tempo de resposta e utilização da CPU.
-
-🧩 Arquitetura do Escalonador
-    • Scheduler (Escalonador): algoritmo que seleciona o próximo processo a ser executado.
-    • Dispatcher (Despachante): módulo que realiza a troca de contexto, atualizando registradores, PC, e estados do processo.
-    • Latência de Despacho: overhead inevitável durante a troca de contexto.
-
-📊 Métricas de Desempenho
-Métrica
-Fórmula (conceitual)
-Objetivo
-Throughput
-Nº processos concluídos / tempo
-Maximizar
-Tempo de Turnaround
-Término  Submissão
-Minimizar
-Tempo de Espera
-Turnaround  Tempo de CPU
-Minimizar
-Tempo de Resposta
-Primeira resposta  Requisição
-Minimizar
-Utilização da CPU
-(Tempo ocupado / Tempo total) × 100%
-Maximizar
-
-⚙️ Algoritmos de Escalonamento Detalhados
-
-1. FIFO (FirstIn, FirstOut)
-    • Não preemptivo.
-    • Processos são executados na ordem de chegada.
-    • Problema: Efeito convoy – processos longos atrasam processos curtos.
-    • Exemplo: 
-        ◦ P1 (24 ms), P2 (3 ms), P3 (3 ms)
-        ◦ Tempo médio de espera: (0 + 24 + 27)/3 = 17 ms (alto).
-
-2. SJF (Shortest Job First)
-    • Pode ser não preemptivo (SJF puro) ou preemptivo (SRTF – Shortest Remaining Time First).
-    • Vantagem: Menor tempo médio de espera.
-    • Desvantagem: Exige conhecimento prévio do tempo de execução; pode causar starvation.
-    • Exemplo SRTF:
-        ◦ P1 (8 ms) chega em t=0, P2 (4 ms) chega em t=1.
-        ◦ P1 executa 1 ms → preemptado por P2 (menor tempo restante).
-
-3. Round Robin (RR)
-    • Preemptivo por quantum de tempo.
-    • Cada processo recebe um quantum (ex: 10 ms).
-    • Se não terminar, volta para o final da fila.
-    • Tradeoff:
-        ◦ Quantum grande → aproximase do FIFO.
-        ◦ Quantum pequeno → aumenta trocas de contexto (overhead).
-
- 4. Escalonamento por Prioridades
-    • Cada processo tem uma prioridade (estática ou dinâmica).
-    • Pode ser preemptivo ou não preemptivo.
-        ◦ Starvation: processos de baixa prioridade podem nunca executar.
-        ◦ Solução: Aging – aumenta prioridade com o tempo de espera.
-
-5. Múltiplas Filas (Multilevel Queue)
-    • Várias filas com diferentes prioridades e políticas.
-    • Exemplo: 
-        ◦ Fila de alta prioridade: RR (processos interativos).
-        ◦ Fila de baixa prioridade: FIFO (processos em batch).
-        ◦ Sem realimentação: processo não muda de fila.
-        ◦ Com realimentação: processos podem migrar entre filas conforme seu comportamento.
-
-🧠 Análise Comparativa
-Algoritmo
-Preemptivo
-Justiça
-Overhead
-Starvation
-Throughput
-FIFO
-Não
-Baixa
-Baixo
-Não
-Médio
-SJF
-Opcional
-Alta
-Médio
-Sim
-Alto
-RR
-Sim
-Alta
-Alta
-Não
-Médio
-Prioridades
-Sim/Não 
-Variável
-Médio
-Sim
-Alto
-
+🚀 Tópicos Fundamentais da Gerência de Sistemas Operacionais
+Este resumo abrange três áreas cruciais do funcionamento de um sistema operacional: a gerência do processador (escalonamento), a gerência de memória e a gerência de dispositivos de Entrada/Saída.
+🔥 GERÊNCIA DO PROCESSADOR - ESCALONAMENTO
+O escalonamento de processos é o coração da multiprogramação. É o mecanismo usado pelo sistema operacional (SO) para decidir qual processo, atualmente no estado de "pronto", deve ser o próximo a usar a Unidade Central de Processamento (CPU). O objetivo é otimizar métricas como o throughput (vazão), o tempo de resposta e a utilização da CPU.
+Arquitetura e Componentes Chave
+O processo envolve dois módulos principais:
+Scheduler (Escalonador): O algoritmo que decide, com base em critérios e políticas, qual processo será o próximo.
+Dispatcher (Despachante): O módulo que executa a troca de contexto propriamente dita. Ele salva o estado do processo atual e carrega o estado do próximo, atualizando registradores e o contador de programa (PC).
+Latência de Despacho: O tempo de overhead (gasto) inevitável durante cada troca de contexto.
+Métricas de Desempenho
+A eficiência do escalonamento é medida por vários parâmetros:
+Throughput (Vazão): Quantidade total de processos concluídos por unidade de tempo (deseja-se maximizar).
+Tempo de Turnaround (Retorno): Tempo total desde a submissão até a conclusão do processo (deseja-se minimizar).
+Tempo de Espera: Tempo que um processo passa na fila de prontos, aguardando a CPU (deseja-se minimizar).
+Tempo de Resposta: Tempo desde a requisição inicial até a primeira resposta (crítico para sistemas interativos; deseja-se minimizar).
+Utilização da CPU: Percentual de tempo que a CPU está ocupada com tarefas úteis (deseja-se maximizar).
+Algoritmos de Escalonamento Principais
+Os algoritmos podem ser preemptivos (o SO pode interromper um processo em execução) ou não preemptivos (o processo só libera a CPU voluntariamente).
+FIFO (First-In, First-Out):
+Não preemptivo. Processos são executados estritamente na ordem de chegada.
+Problema Principal: O "Efeito Convoy", onde um único processo longo atrasa desproporcionalmente todos os processos curtos que chegam depois dele.
+SJF (Shortest Job First):
+Pode ser não preemptivo ou preemptivo (neste caso, chamado SRTF - Shortest Remaining Time First).
+Vantagem: Produz o menor tempo médio de espera entre todos os algoritmos.
+Desvantagem: Requer um conhecimento prévio (ou estimativa) precisa do tempo de execução do processo e pode causar starvation (inanição) se processos curtos continuarem chegando.
+Round Robin (RR):
+Preemptivo por quantum de tempo. Cada processo recebe uma fatia de tempo fixa na CPU. Se não terminar, é movido para o final da fila de prontos.
+Trade-off: Um quantum grande aproxima o RR do FIFO. Um quantum muito pequeno aumenta excessivamente o overhead devido ao grande número de trocas de contexto.
+Escalonamento por Prioridades:
+Cada processo recebe um nível de prioridade (estático ou dinâmico). Processos de maior prioridade executam antes.
+Problema: Starvation para processos de baixa prioridade.
+Solução: Aging (Envelhecimento), que aumenta gradualmente a prioridade de um processo à medida que ele espera na fila.
+Múltiplas Filas (Multilevel Queue):
+Combina políticas. O sistema usa várias filas distintas, cada uma com sua própria política (ex: RR para processos interativos de alta prioridade, FIFO para processos em batch de baixa prioridade).
+Com realimentação (feedback), os processos podem migrar entre filas se mudarem de comportamento (ex: um processo que usa muita CPU migra para uma fila de prioridade mais baixa).
 🔥 GERÊNCIA DE MEMÓRIA
-
-🧩 Evolução Histórica
-1. Monoprogramação: SO + 1 processo.
-2. Multiprogramação com partições fixas: fragmentação interna.
-3. Partições dinâmicas: fragmentação externa.
-4. Memória virtual: ilusão de memória infinita.
-
-📌 Problemas de Fragmentação
-Tipo
-Causa
-Soluções Possíveis
-Interna
-Espaço desperdiçado dentro de uma partição fixa.
-Partições dinâmicas, paginação.
-Externa
-Espaços livres não contíguos entre processos.
-Compactação, segmentação, paginação.
-
-⚙️ Estratégias de Alocação de Memória
-FirstFit
- Aloca na primeira partição livre que couber.
-    • Vantagem: Rápido.
-    • Desvantagem: Pode deixar fragmentos pequenos no início.
-
-
-
-BestFit
- Aloca na partição que mais se aproxima do tamanho necessário.
-    • Vantagem: Minimiza desperdício na partição.
-    • Desvantagem: Cria muitos fragmentos minúsculos inúteis.
-
-WorstFit
- Aloca na maior partição livre.
-    • Vantagem: Deixa espaço para outros processos.
-    • Desvantagem: Pode desperdiçar memória em partições grandes.
-
- 🔄 Swapping
- Processos são movidos entre memória principal e área de swap no disco.
-    • Swap out: processo é removido da RAM.
-    • Swap in: processo é carregado de volta.
-    • Problema: Latência de disco alta → degradação de desempenho se excessivo.
-    • Uso típico: Para processos em espera ou de baixa prioridade.
-
-
-
-🔥MEMÓRIA VIRTUAL
-
- 🧩 ConceitosChave
-    • Espaço de endereçamento virtual: conjunto de endereços que um processo pode acessar.
-    • Espaço de endereçamento físico: endereços reais da RAM.
-    • MMU (Memory Management Unit): hardware que traduz endereços virtuais em físicos.
-
- 📌 Paginação
-    • Memória dividida em páginas (tamanho fixo, ex: 4 KB).
-    • Tabela de páginas mantém mapeamento página virtual → frame físico.
-    • Bit de validade: 1 = página na RAM, 0 = página no disco.
-    • Bit de modificação (dirty bit): 1 = página foi alterada, precisa ser salva.
-
-Ciclo de Page Fault
-      1. Referência a página inválida (bit=0).
-      2. Interrupção de page fault.
-      3. SO escolhe um frame vítima.
-      4. Se frame foi modificado, escreve no disco.
-      5. Carrega página necessária do disco para RAM.
-      6. Atualiza tabela de páginas (bit=1).
-      7. Retoma execução da instrução.
-
- 📌 Segmentação
-    • Memória dividida em segmentos com significado lógico (código, dados, pilha).
-    • Cada segmento tem tamanho variável.
-    • Tabela de segmentos: armazena base + limite.
-    • Vantagem: proteção e compartilhamento mais naturais.
-    • Desvantagem: fragmentação externa.
-
- ⚠️ Problemas da Memória Virtual
-    • Thrashing: excesso de page faults → sistema fica lento.
-    • Causa: poucos frames por processo → working set não cabe na RAM.
-    • Solução: aumentar RAM, ajustar algoritmo de substituição, usar working set.
-
- 🔄 Algoritmos de Substituição de Páginas
-Algoritmo
- Ideia Principal 
-Vantagens
-Desvantagens
-FIFO
-Remove a página mais antiga
-Simples
-Pode remover páginas frequentemente usadas.
- Ótimo (OPT)
-Remove a página que será usada mais no futuro.
-Teoricamente ideal
-Impossível implementar (requer conhecimento futuro).
- LRU (Least Recently Used)
-Remove a página não usada há mais tempo.
-Boa performance na prática.
-Overhead de implementação.
-Segunda Chance (Clock)
-FIFO com bit de referência; páginas referenciadas ganham segunda chance
-Balanceado entre overhead e eficiência
-Pior que LRU.
-
-
-🔥GERÊNCIA DE DISPOSITIVOS (E/S)
-
- 🧩 Arquitetura em Camadas
-1. Aplicação: faz chamadas de biblioteca (ex: `fread()`).
-2. System Call: interface com o kernel (ex: `read()`).
-3. Subsistema de E/S do SO: trata buffering, caching, agendamento.
-4. Device Driver: converte comandos genéricos em comandos específicos do hardware.
-5. Controlador de Dispositivo: hardware que executa as operações.
-
- 📌 Buffering e Caching
-    • Buffer: memória temporária para compensar diferenças de velocidade entre CPU e dispositivos.
-    • Caching: cópia de dados frequentemente acessados em memória rápida.
-    • Spooling: fila de trabalhos para dispositivos lentos (ex: impressora).
-
- ⚙️ Tipos de Dispositivos
-Tipo
-Exemplos
-Características
-Bloco
-Discos, SSDs
-Acesso por blocos; endereçável
-Caractere
-Teclado, mouse
- Fluxo contínuo de bytes.
-Rede
- Placas de rede
-Comunicação serial/paralela.
-
- 🔄 Modos de Transferência
-1. Polling (BusyWaiting): CPU verifica continuamente se dispositivo está pronto (ineficiente).
-2. Interrupções: dispositivo sinaliza quando pronto; CPU é interrompida.
-3. DMA (Direct Memory Access): controlador transfere dados diretamente para RAM sem CPU.
-    • CPU só é envolvida no início e fim da transferência.
-    • Vantagem: libera CPU para outras tarefas.
-
- 🛡️ Tratamento de Erros
-    • Recuperação a nível de driver: tentar novamente, recalibrar.
-    • Reporte a nível de aplicação: “dispositivo não disponível”.
-    • Falhas fatais: kernel panic, BSOD (em casos extremos).
+A gerência de memória lida com a alocação e o controle do espaço de memória principal (RAM) entre o sistema operacional e os múltiplos processos.
+Problemas de Fragmentação
+A alocação de memória enfrenta dois tipos principais de desperdício de espaço:
+Fragmentação Interna: Ocorre quando a memória alocada é ligeiramente maior do que a solicitada (comum em partições fixas ou paginação).
+Fragmentação Externa: Ocorre quando há memória livre total suficiente para um novo processo, mas ela está espalhada em blocos não contíguos (comum em partições dinâmicas e segmentação). Soluções incluem compactação de memória ou uso de paginação/segmentação.
+Estratégias de Alocação (Partições Dinâmicas)
+First Fit: Aloca na primeira partição livre encontrada que seja grande o suficiente. É rápido, mas pode deixar pequenos fragmentos no início da memória.
+Best Fit: Aloca na menor partição livre que satisfaça o pedido. Minimiza o desperdício imediato, mas cria muitos fragmentos minúsculos e inúteis.
+Worst Fit: Aloca na maior partição livre disponível. Tenta deixar blocos livres grandes para alocações futuras, mas pode desperdiçar grandes quantidades de memória.
+Swapping (Troca)
+O swapping é um mecanismo que move processos inteiros (ou partes deles) entre a memória principal (RAM) e uma área de swap no disco rígido para liberar RAM para outros processos. O grande problema é a alta latência do disco, que pode degradar severamente o desempenho se usado excessivamente.
+🔥 MEMÓRIA VIRTUAL
+A memória virtual cria a ilusão de que cada processo tem acesso a um espaço de memória vasto e contíguo, independentemente da quantidade de RAM física disponível.
+Conceitos Chave
+Espaço de Endereçamento Virtual: O conjunto de endereços que o programa vê e usa.
+Espaço de Endereçamento Físico: Os endereços reais na RAM.
+MMU (Memory Management Unit): Hardware essencial que traduz endereços virtuais em físicos em tempo real.
+Paginação e Page Faults
+A paginação divide a memória virtual em blocos de tamanho fixo chamados páginas, e a memória física em frames de mesmo tamanho. A tabela de páginas, mantida pelo SO e gerenciada pela MMU, armazena o mapeamento entre eles.
+Quando um programa tenta acessar uma página que não está na RAM (o bit de validade na tabela é 0), ocorre um Page Fault (falha de página). O SO intervém:
+Ocorre a interrupção de page fault.
+O SO escolhe um frame vítima na RAM.
+Se a página no frame vítima foi modificada (dirty bit é 1), ela é salva no disco.
+A página necessária é carregada do disco para o frame vítima.
+A tabela de páginas é atualizada e a execução do programa é retomada.
+Problemas da Memória Virtual
+Thrashing (Pulsação): Ocorre quando há excesso de page faults, fazendo com que o sistema passe mais tempo trocando páginas com o disco do que executando tarefas úteis. Isso geralmente acontece quando não há frames de memória suficientes para o conjunto de trabalho (working set) dos processos ativos.
+Algoritmos de Substituição de Páginas
+Quando um page fault ocorre e todos os frames estão ocupados, um algoritmo deve escolher qual página "vítima" remover:
+FIFO (First-In, First-Out): Remove a página que está na memória há mais tempo. Simples, mas ineficiente se essa página antiga for frequentemente usada.
+Ótimo (OPT): Remove a página que será usada mais distante no futuro. É o ideal teórico, mas impossível de implementar na prática, pois exige prever o futuro.
+LRU (Least Recently Used): Remove a página que não foi usada há mais tempo. É uma boa aproximação prática do algoritmo Ótimo, mas tem um custo de implementação maior.
+Segunda Chance (Clock): Uma variação do FIFO que dá uma "segunda chance" para páginas que tiveram seu bit de referência marcado recentemente, oferecendo um bom equilíbrio entre eficiência e baixo overhead.
+🔥 GERÊNCIA DE DISPOSITIVOS (E/S)
+A gerência de E/S (Entrada/Saída) abstrai o hardware subjacente para que os programas possam interagir com dispositivos de maneira uniforme.
+Arquitetura em Camadas
+A comunicação flui da aplicação para o hardware através de várias camadas:
+Aplicação: Faz chamadas de bibliotecas de alto nível (ex: fread()).
+System Call Interface: O ponto de entrada para o kernel do SO.
+Subsistema de E/S do SO: Lida com tarefas genéricas como buffering e agendamento de requisições.
+Device Driver (Driver de Dispositivo): Software específico que traduz comandos genéricos do SO em comandos de hardware específicos para aquele dispositivo (ex: um modelo específico de impressora ou disco).
+Controlador de Dispositivo: O chip de hardware que executa fisicamente a operação.
+Modos de Transferência de Dados
+Polling (Busy Waiting): A CPU verifica repetidamente o status do dispositivo para ver se ele está pronto. Extremamente ineficiente, pois desperdiça ciclos de CPU.
+Interrupções: O método padrão. O dispositivo sinaliza a CPU através de uma interrupção quando uma operação é concluída ou requer atenção.
+DMA (Direct Memory Access): Um controlador de DMA gerencia a transferência de grandes blocos de dados diretamente entre a memória RAM e o dispositivo de E/S, sem envolver a CPU no processo de transferência. A CPU é notificada apenas no início e no fim da operação via interrupção.
